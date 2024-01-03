@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auctions-service-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auctions-service-db
+  template:
+    metadata:
+      labels:
+        app: auctions-service-db
+    spec:
+      containers:
+        - name: auctions-service-db
+          image: mysql:8
+          volumeMounts:
+            - name: mysql-init-db-config
+              mountPath: /docker-entrypoint-initdb.d
+            - name: mysql-data-persistance
+              mountPath: /var/lib/mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: password
+            - name: MYSQL_DATABASE
+              value: default
+          ports:
+            - containerPort: 3306
+              name: mysql
+      volumes:
+        - name: mysql-init-db-config
+          configMap:
+            name: mysql-init-db
+        - name: mysql-data-persistance
+          hostPath:
+            path: /home/mysqldata
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auctions-service-db-srv
+spec:
+  selector:
+    app: auctions-service-db
+  ports:
+    - name: auctions-service-db
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-db
+data:
+  init.sql: |-
+    CREATE DATABASE IF NOT EXISTS auctions;

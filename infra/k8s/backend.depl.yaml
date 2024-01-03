@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auctions-service-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auctions-service 
+  template:
+    metadata:
+      labels:
+        app: auctions-service 
+    spec:
+      containers:
+        - name: auctions-service 
+          image: vlad246/auctions-service:latest
+          env:
+            - name: NODE_ENV
+              value: "development"
+            - name: DB_HOST
+              value: tms-db-srv
+            - name: DB_USER
+              value: root
+            - name: DB_PASS
+              value: password
+            - name: DB_NAME
+              value: hermes_tms
+            - name: JWT_SECRET
+              value: "secret"
+          volumeMounts:
+            - name: tms-db-volume
+              mountPath: /app/uploads
+      volumes:
+        - name: tms-db-volume
+          hostPath:
+            path: /data/uploads
+            type: DirectoryOrCreate
+      initContainers:
+        - name: tms-db
+          image: mysql:8
+          command: ['sh', '-c', 'echo waiting for mydb && sleep 10']
+        - name: init-database
+          image: mysql:8
+          command: ["mysql"]
+          args:
+            - "--host=tms-db-srv"
+            - "--user=root"
+            - "--password=password"
+            - "--execute=CREATE DATABASE IF NOT EXISTS hermes_tms;"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: password 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auctions-service-srv
+spec:
+  selector:
+    app:auctions-service 
+  ports:
+    - name: auctions-service 
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
