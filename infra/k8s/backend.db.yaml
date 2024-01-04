@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auctions-service-db
+  name: auctions-service-db-depl
 spec:
   replicas: 1
   selector:
