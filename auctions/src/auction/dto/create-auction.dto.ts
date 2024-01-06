@@ -3,8 +3,9 @@ import { CreateOperationDto } from './create-operation.dto';
 import { ParcelType } from 'src/types/enums';
 import {
   IsArray,
-  IsDate,
+  IsDateString,
   IsNotEmpty,
+  IsNumber,
   IsString,
   MinLength,
 } from 'class-validator';
@@ -23,7 +24,7 @@ export class CreateAuctionDto {
     type: Date,
     example: '2021-01-01 00:00:00',
   })
-  @IsDate()
+  @IsDateString()
   @IsNotEmpty()
   startTimestamp: Date;
   @ApiProperty({
@@ -31,7 +32,7 @@ export class CreateAuctionDto {
     type: Date,
     example: '2021-02-01 00:00:00',
   })
-  @IsDate()
+  @IsDateString()
   @IsNotEmpty()
   endTimestamp: Date;
   @ApiProperty({
@@ -39,7 +40,7 @@ export class CreateAuctionDto {
     type: Number,
     example: 100,
   })
-  @IsDate()
+  @IsNumber()
   @IsNotEmpty()
   km: number;
   @ApiProperty({
@@ -57,6 +58,7 @@ export class CreateAuctionDto {
             height: 100,
             width: 100,
             weight: 100,
+            length: 100,
             fragile: false,
             description: 'Parcel description',
             qty: 100,
@@ -86,6 +88,7 @@ export class CreateAuctionDto {
             height: 100,
             width: 100,
             weight: 100,
+            length: 100,
             fragile: false,
             description: 'Parcel description',
             qty: 100,

@@ -51,11 +51,15 @@ export class Auction {
   active: boolean;
   @OneToOne(() => User)
   winner: User;
-  @OneToMany(() => Bid, (bid) => bid.auction)
+  @OneToMany(() => Bid, (bid) => bid.auction, { cascade: true })
   bids: Bid[];
-  @OneToMany(() => Operation, (operation) => operation.loadingFor)
+  @OneToMany(() => Operation, (operation) => operation.loadingFor, {
+    cascade: true,
+  })
   loadings: Operation[];
-  @OneToMany(() => Operation, (operation) => operation.unloadingFor)
+  @OneToMany(() => Operation, (operation) => operation.unloadingFor, {
+    cascade: true,
+  })
   unloadings: Operation[];
   @ManyToOne(() => User, (user) => user.auctions)
   user: User;

@@ -8,6 +8,7 @@ import {
 import { Parcel } from './parcel.entity';
 import { OperationStatus } from 'src/types/enums';
 import { Auction } from 'src/auction/entities/auction.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({
   name: 'operations',
@@ -45,7 +46,7 @@ export class Operation {
     type: 'varchar',
   })
   coordinates: string;
-  @OneToMany(() => Parcel, (parcel) => parcel.operation)
+  @OneToMany(() => Parcel, (parcel) => parcel.operation, { cascade: true })
   parcels: Parcel[];
   @Column({
     nullable: false,
@@ -70,7 +71,9 @@ export class Operation {
   })
   status: OperationStatus;
   @ManyToOne(() => Auction, (auction) => auction.loadings)
+  @Exclude({ toPlainOnly: true })
   loadingFor: Auction;
   @ManyToOne(() => Auction, (auction) => auction.unloadings)
+  @Exclude({ toPlainOnly: true })
   unloadingFor: Auction;
 }

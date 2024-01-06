@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { CreateAuctionDto } from './dto/create-auction.dto';
 import { UpdateAuctionDto } from './dto/update-auction.dto';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Auction } from './entities/auction.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateBidDto } from './dto/create-bid.dto';
@@ -9,28 +9,45 @@ import { Operation } from './entities/operation.entity';
 import { Parcel } from './entities/parcel.entity';
 import { CreateOperationDto } from './dto/create-operation.dto';
 import { BidService } from './bid/bid.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuctionService {
   constructor(
     @InjectRepository(Auction)
     private readonly auctionRepository: Repository<Auction>,
-    @InjectRepository(Operation)
-    private readonly operationRepository: Repository<Operation>,
     @InjectRepository(Parcel)
     private readonly parcelRepository: Repository<Parcel>,
     private readonly bidService: BidService,
+    private readonly dataSource: DataSource,
+    private readonly userService: UserService,
   ) {}
-  async create(createAuctionDto: CreateAuctionDto) {
-    const { loadings, unloadings, ...auctionData } = createAuctionDto;
-    const auction = this.auctionRepository.create(auctionData);
-    auction.loadings = await this.mergeOperations(loadings, 'loading', auction);
-    auction.unloadings = await this.mergeOperations(
-      unloadings,
-      'unloading',
-      auction,
-    );
-    return await this.auctionRepository.save(auction);
+  async create(
+    createAuctionDto: CreateAuctionDto,
+    userEmail: string,
+  ): Promise<Auction> {
+    try {
+      const user = await this.userService.findOne(userEmail);
+      const { loadings, unloadings, ...auctionData } = createAuctionDto;
+      const auction = this.auctionRepository.create(auctionData);
+      auction.user = user;
+      const savedAuction = await this.auctionRepository.save(auction);
+      auction.loadings = await this.mergeOperations(
+        loadings,
+        'loading',
+        savedAuction,
+      );
+      auction.unloadings = await this.mergeOperations(
+        unloadings,
+        'unloading',
+        savedAuction,
+      );
+      console.log(auction);
+      return await this.auctionRepository.save(auction);
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(error.message, 500);
+    }
   }
 
   /**
@@ -42,32 +59,43 @@ export class AuctionService {
     type: 'loading' | 'unloading',
     auctionData: Auction,
   ): Promise<Operation[]> {
-    const _operations = operations.map(async (operationDto) => {
-      const { parcels, ...data } = operationDto;
-      const operation = this.operationRepository.create(data);
+    return await this.dataSource.transaction(async (manager) => {
+      const operationsRepository = manager.getRepository(Operation);
+      const parcelsRepository = manager.getRepository(Parcel);
 
-      for (const parcel of parcels) {
-        const parcelEntity = this.parcelRepository.create();
-        parcelEntity.height = parcel.height;
-        parcelEntity.width = parcel.width;
-        parcelEntity.length = parcel.length;
-        parcelEntity.weight = parcel.weight;
-        parcelEntity.qty = parcel.qty;
-        parcelEntity.fragile = parcel.fragile;
-        parcelEntity.operation = operation;
-        const savedParcel = await this.parcelRepository.save(parcelEntity);
-        operation.parcels.push(savedParcel);
-      }
+      const _operations = operations.map(async (operationDto) => {
+        const { parcels, ...data } = operationDto;
+        const operation: Operation = operationsRepository.create(data);
+        const savedOperation = await operationsRepository.save(operation);
+        const savedParcels: Parcel[] = [];
 
-      if (type === 'loading') {
-        operation.loadingFor = auctionData;
-      } else if (type === 'unloading') {
-        operation.unloadingFor = auctionData;
-      }
+        for (const parcel of parcels) {
+          const parcelEntity = this.parcelRepository.create({
+            height: parcel.height,
+            width: parcel.width,
+            length: parcel.length,
+            weight: parcel.weight,
+            qty: parcel.qty,
+            fragile: parcel.fragile,
+            description: parcel.description,
+          });
+          parcelEntity.operation = savedOperation;
+          const savedParcel = await parcelsRepository.save(parcelEntity);
+          savedParcels.push(savedParcel);
+        }
 
-      return await this.operationRepository.save(operation);
+        if (type === 'loading') {
+          savedOperation.loadingFor = auctionData;
+        } else if (type === 'unloading') {
+          savedOperation.unloadingFor = auctionData;
+        }
+
+        savedOperation.parcels = savedParcels;
+        const _operation = await operationsRepository.save(savedOperation);
+        return _operation;
+      });
+      return await Promise.all(_operations);
     });
-    return await Promise.all(_operations);
   }
 
   async findAll() {
@@ -98,7 +126,7 @@ export class AuctionService {
   async addBid(
     id: string,
     createBidDto: CreateBidDto,
-    userId: string,
+    userEmail: string,
   ): Promise<Auction> {
     const auction = await this.auctionRepository.findOneBy({
       id: id,
@@ -108,7 +136,7 @@ export class AuctionService {
       throw new HttpException('Auction is finished', 400);
     }
 
-    const bid = await this.bidService.create(createBidDto, userId);
+    const bid = await this.bidService.create(createBidDto, userEmail);
 
     auction.bids.push(bid);
 

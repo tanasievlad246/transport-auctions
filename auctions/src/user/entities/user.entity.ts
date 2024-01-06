@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Auction } from 'src/auction/entities/auction.entity';
 import { Bid } from 'src/auction/entities/bid.entity';
 import { Entity, Column, PrimaryColumn, Generated, OneToMany } from 'typeorm';
@@ -24,36 +25,41 @@ export class User {
   @Column({
     nullable: false,
   })
+  @Exclude({ toPlainOnly: true })
   password: string;
   @Column({
     nullable: false,
   })
+  @Exclude({ toPlainOnly: true })
   salt: string;
   @Column({
     nullable: false,
     type: 'tinyint',
     default: 1,
   })
+  @Exclude({ toPlainOnly: true })
   is_active: boolean;
   @Column({
     nullable: true,
     type: 'varchar',
   })
   @Generated('uuid')
+  @Exclude({ toPlainOnly: true })
   passwordResetToken: string;
   @Column({
     nullable: true,
     type: 'varchar',
   })
   @Generated('uuid')
+  @Exclude({ toPlainOnly: true })
   confirmationToken: string;
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
-  @OneToMany(() => Auction, (auction) => auction.user)
+  @OneToMany(() => Auction, (auction) => auction.user, { cascade: true })
   auctions: Auction[];
-  @OneToMany(() => Bid, (bid) => bid.user)
+  @OneToMany(() => Bid, (bid) => bid.user, { cascade: true })
   bids: Bid[];
 }

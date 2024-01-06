@@ -21,14 +21,19 @@ export class AuthController {
   }
 
   @Post('signin')
-  async signIn(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
+  async signIn(
+    @Body() loginUserDto: LoginUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     try {
       const { email, password } = loginUserDto;
       const token = await this.authService.signInUser(email, password);
       return res
         .cookie('jwt', token, {
           httpOnly: true,
-          expires: new Date(1000 * 60 * 60 * 24),
+          expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
         })
         .sendStatus(200);
     } catch (error) {

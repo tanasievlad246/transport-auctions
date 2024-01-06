@@ -1,6 +1,7 @@
 import { ParcelType } from 'src/types/enums';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Operation } from './operation.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({
   name: 'parcels',
@@ -51,5 +52,6 @@ export class Parcel {
   })
   createdAt: Date;
   @ManyToOne(() => Operation, (operation) => operation.parcels)
+  @Exclude({ toPlainOnly: true })
   operation: Operation;
 }
