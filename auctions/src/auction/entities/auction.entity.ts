@@ -1,32 +1,26 @@
-import { Bid } from 'src/bid/entities/bid.entity';
-import { Operation } from 'src/operation/entities/operation.entity';
+import { Bid } from './bid.entity';
+import { Operation } from './operation.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   Entity,
-  Generated,
   ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity({
+  name: 'auctions',
+})
 export class Auction {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
   @Column({
     nullable: false,
     type: 'varchar',
   })
   name: string;
-
-  @Column({
-    nullable: false,
-  })
-  @Generated('increment')
-  numberCount: number;
   @Column({
     nullable: false,
     type: 'timestamp',
@@ -38,11 +32,10 @@ export class Auction {
   })
   endTimestamp: Date;
   @Column({
-    nullable: false,
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  creationDate: Date;
+  createdAt: Date;
   @Column({
     nullable: false,
     type: 'decimal',
@@ -53,13 +46,9 @@ export class Auction {
   })
   finished: boolean;
   @Column({
-    default: false,
+    default: true,
   })
   active: boolean;
-  @Column({
-    nullable: false,
-  })
-  images: string[];
   @OneToOne(() => User)
   winner: User;
   @OneToMany(() => Bid, (bid) => bid.auction)

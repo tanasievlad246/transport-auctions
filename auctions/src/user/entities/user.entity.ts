@@ -1,5 +1,5 @@
 import { Auction } from 'src/auction/entities/auction.entity';
-import { Bid } from 'src/bid/entities/bid.entity';
+import { Bid } from 'src/auction/entities/bid.entity';
 import { Entity, Column, PrimaryColumn, Generated, OneToMany } from 'typeorm';
 
 @Entity({
@@ -13,12 +13,22 @@ export class User {
   email: string;
   @Column({
     nullable: false,
+    type: 'varchar',
+  })
+  firstName: string;
+  @Column({
+    nullable: false,
+    type: 'varchar',
+  })
+  lastName: string;
+  @Column({
+    nullable: false,
   })
   password: string;
   @Column({
     nullable: false,
   })
-  username: string;
+  salt: string;
   @Column({
     nullable: false,
     type: 'tinyint',

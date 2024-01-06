@@ -1,22 +1,13 @@
 import { ParcelType } from 'src/types/enums';
-import {
-  Column,
-  Entity,
-  Generated,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Operation } from './operation.entity';
 
-@Entity()
+@Entity({
+  name: 'parcels',
+})
 export class Parcel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column({
-    nullable: false,
-  })
-  @Generated('increment')
-  parcelCount: number;
   @Column({
     nullable: false,
   })

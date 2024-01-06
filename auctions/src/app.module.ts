@@ -4,13 +4,12 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { AuctionModule } from './auction/auction.module';
-import { BidModule } from './bid/bid.module';
-import { OperationModule } from './operation/operation.module';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     JwtModule.register({
+      global: true,
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '60m' },
     }),
@@ -21,13 +20,12 @@ import { JwtModule } from '@nestjs/jwt';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      entities: ['build/*.entity{.ts,.js}'],
+      entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
+      logging: true,
     }),
     UserModule,
     AuctionModule,
-    BidModule,
-    OperationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

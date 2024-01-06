@@ -9,7 +9,9 @@ import { Parcel } from './parcel.entity';
 import { OperationStatus } from 'src/types/enums';
 import { Auction } from 'src/auction/entities/auction.entity';
 
-@Entity()
+@Entity({
+  name: 'operations',
+})
 export class Operation {
   @PrimaryGeneratedColumn('uuid')
   id: string;

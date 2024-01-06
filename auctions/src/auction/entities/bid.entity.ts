@@ -2,10 +2,12 @@ import { Auction } from 'src/auction/entities/auction.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity({
+  name: 'bids',
+})
 export class Bid {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
   @Column({
     nullable: false,
     type: 'decimal',
