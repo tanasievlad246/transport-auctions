@@ -1,7 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { Auction } from 'src/auction/entities/auction.entity';
 import { Bid } from 'src/auction/entities/bid.entity';
-import { Entity, Column, PrimaryColumn, Generated, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryColumn, OneToMany } from 'typeorm';
 
 @Entity({
   name: 'users',
@@ -43,14 +43,12 @@ export class User {
     nullable: true,
     type: 'varchar',
   })
-  @Generated('uuid')
   @Exclude({ toPlainOnly: true })
   passwordResetToken: string;
   @Column({
     nullable: true,
     type: 'varchar',
   })
-  @Generated('uuid')
   @Exclude({ toPlainOnly: true })
   confirmationToken: string;
   @Column({

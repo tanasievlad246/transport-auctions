@@ -30,7 +30,6 @@ export class AuthService {
       user,
       password,
     );
-    console.log(isPasswordValid);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }

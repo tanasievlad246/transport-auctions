@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Bid } from '../entities/bid.entity';
+import { Bid } from 'src/auction/entities/bid.entity';
 import { CreateBidDto } from '../dto/create-bid.dto';
 import { UserService } from 'src/user/user.service';
 
