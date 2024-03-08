@@ -18,4 +18,5 @@ spec:
                 name: auctions-service-srv
                 port:
                   number: 3000
+          
                   

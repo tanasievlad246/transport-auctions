@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auctions-timer-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auctions-timer 
+  template:
+    metadata:
+      labels:
+        app: auctions-timer 
+    spec:
+      containers:
+        - name: auctions-timer
+          image: vlad246/auctions-timer:latest
+          env:
+            - name: NODE_ENV
+              value: "development"
+            - name: DB_HOST
+              value: mongodb-service
+            - name: DB_USER
+              value: root
+            - name: DB_PASS
+              value: password
+            - name: DB_NAME
+              value: auctions
+          volumeMounts:
+            - name: auctions-timer-db-volume
+              mountPath: /app/uploads
+      volumes:
+        - name: auctions-timer-db-volume
+          hostPath:
+            path: /data/uploads
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auctions-timer-srv
+spec:
+  selector:
+    app: auctions-timer
+  ports:
+    - name: auctions-timer 
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

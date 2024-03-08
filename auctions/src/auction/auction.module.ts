@@ -10,10 +10,11 @@ import { Operation } from './entities/operation.entity';
 import { Parcel } from './entities/parcel.entity';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/user/entities/user.entity';
+import { TimerService } from './timer/timer.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Auction, Bid, Operation, Parcel, User])],
   controllers: [AuctionController],
-  providers: [AuctionService, BidService, OperationService, UserService],
+  providers: [AuctionService, BidService, OperationService, UserService, TimerService],
 })
 export class AuctionModule {}

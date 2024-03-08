@@ -1,7 +1,7 @@
 import { Body, Controller, HttpException, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from './auth.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
 
@@ -21,6 +21,7 @@ export class AuthController {
   }
 
   @Post('signin')
+  @ApiResponse({ status: 200 })
   async signIn(
     @Body() loginUserDto: LoginUserDto,
     @Res({ passthrough: true }) res: Response,
@@ -42,6 +43,7 @@ export class AuthController {
   }
 
   @Post('signout')
+  @ApiResponse({ status: 200 })
   async signOut(@Res() res: Response) {
     return res.clearCookie('jwt').sendStatus(200);
   }

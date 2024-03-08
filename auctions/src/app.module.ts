@@ -4,9 +4,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { AuctionModule } from './auction/auction.module';
 import { JwtModule } from '@nestjs/jwt';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
+    BullModule.registerQueue({
+      redis: {
+        host: process.env.REDIS_HOST,
+        port: 6379,
+      },
+    }),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
@@ -21,7 +28,6 @@ import { JwtModule } from '@nestjs/jwt';
       database: process.env.DB_NAME,
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
-      logging: true,
     }),
     UserModule,
     AuctionModule,

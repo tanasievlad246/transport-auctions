@@ -58,6 +58,6 @@ export class AuctionController {
     @Body() createBidDto: CreateBidDto,
     @Req() req: Request,
   ) {
-    this.auctionService.addBid(id, createBidDto, req.user.email);
+    return this.auctionService.addBid(id, createBidDto, req.user.email);
   }
 }

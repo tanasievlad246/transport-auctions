@@ -1,8 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/user/entities/user.entity';
+import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as crypto from 'crypto';
 @Injectable()
@@ -18,7 +18,7 @@ export class UserService {
       const existingUser = await this.userRepository.findOneBy({ email });
 
       if (existingUser) {
-        throw new Error('User already exists');
+        throw new HttpException('User already exists', HttpStatus.CONFLICT);
       }
 
       const newUser = this.userRepository.create(createUserDto);
@@ -28,7 +28,6 @@ export class UserService {
       newUser.salt = salt;
       newUser.password = hash;
 
-      console.log(newUser);
       const savedUser = await this.userRepository.save(newUser);
 
       return savedUser;
@@ -55,7 +54,7 @@ export class UserService {
     });
   }
 
-  async comparePassword(user: User, password: string) {
+  async comparePassword(user: User, password: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       try {
         const hash = crypto

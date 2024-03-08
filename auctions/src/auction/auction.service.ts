@@ -29,7 +29,7 @@ export class AuctionService {
     try {
       const user = await this.userService.findOne(userEmail);
       const { loadings, unloadings, ...auctionData } = createAuctionDto;
-      const auction = this.auctionRepository.create(auctionData);
+      let auction = this.auctionRepository.create(auctionData);
       auction.user = user;
       const savedAuction = await this.auctionRepository.save(auction);
       auction.loadings = await this.mergeOperations(
@@ -42,10 +42,10 @@ export class AuctionService {
         'unloading',
         savedAuction,
       );
-      console.log(auction);
-      return await this.auctionRepository.save(auction);
+      // create cronjob for auction expiry
+      auction = await this.auctionRepository.save(auction);
+      return auction;
     } catch (error) {
-      console.log(error);
       throw new HttpException(error.message, 500);
     }
   }

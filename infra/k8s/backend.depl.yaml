@@ -28,6 +28,8 @@ spec:
               value: auctions
             - name: JWT_SECRET
               value: "secret"
+            - name: REDIS_HOST
+              value: redis-service
           volumeMounts:
             - name: auctions-service-db-volume
               mountPath: /app/uploads

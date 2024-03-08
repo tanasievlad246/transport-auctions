@@ -17,6 +17,14 @@ build:
         manual:
           - src: 'src/**/*.{ts,js}'
             dest: .
+    - image: vlad246/auctions-timer
+      context: auctions-timer 
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '**/*.{ts,js}'
+            dest: .
 profiles:
   - name: dev
     deploy:
@@ -27,6 +35,14 @@ profiles:
       artifacts:
         - image: vlad246/auctions-service
           context: auctions 
+          docker:
+            dockerfile: Dockerfile.dev
+          sync:
+            manual:
+              - src: '**/*.{ts,js}'
+                dest: .
+        - image: vlad246/auctions-timer
+          context: auctions-timer 
           docker:
             dockerfile: Dockerfile.dev
           sync:
